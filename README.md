@@ -8,3 +8,7 @@ Select the start and end points. Create/draw obstacles in the maze. Hit "space k
 required libraries:
 
 pygame (pip install pygame)
+
+OR
+
+pip install -r requiremnts.txt
