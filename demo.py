@@ -31,49 +31,49 @@ class Spot:
         self.width = width
         self.total_rows = tot_rows
 
-    def get_pos(self):
+    def get_pos(self):   # get the current coordinate of the spot
         return self.row, self.col
 
-    def is_closed(self):
+    def is_closed(self):   # check if the current spot has already been explored
         return self.color == RED
 
-    def is_open(self):
+    def is_open(self):      # check if the current spot can be explored
         return self.color == GREEN
 
-    def is_obstacle(self):
+    def is_obstacle(self):   # check if the current spot is an onbstacle
         return self.color == BLACK
 
-    def is_start(self):
+    def is_start(self):       # check if the current spot is the start point
         return self.color == ORANGE
 
-    def is_end(self):
+    def is_end(self):          # check if the current spot is the end point 
         return self.color == TURQUOISE
 
-    def reset(self):
+    def reset(self):   #     # reset the select spot
         self.color = WHITE
 
-    def make_closed(self):
+    def make_closed(self):    # mark the spot as already explored
         self.color = RED
 
-    def make_open(self):
+    def make_open(self):       # add the currently explored open spot to neighbours list
         self.color = GREEN
 
-    def make_obstacle(self):
+    def make_obstacle(self):   # make an obstacle spot
         self.color = BLACK
 
-    def make_start(self):
+    def make_start(self):       # choose the start spot
         self.color = ORANGE
 
-    def make_end(self):
+    def make_end(self):         #choose the end spot
         self.color = TURQUOISE
 
-    def make_path(self):
+    def make_path(self):        # mark the path from start to end
         self.color = PURPLE
 
-    def draw(self, win):
+    def draw(self, win):        # initialize the GUI window
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
-    def update_neighbours(self, grid):
+    def update_neighbours(self, grid):   # add the visited open neighbours to a list
         self.neighbors = []
         # DOWN
         if self.row < self.total_rows - 1 and not grid[self.row + 1][self.col].is_obstacle():
@@ -92,14 +92,14 @@ class Spot:
     def __lt__(self, other):
         return False
 
-
-def h(p1, p2):
+ 
+def h(p1, p2):    #  define the heuristic function
     x1, y1 = p1
     x2, y2 = p2
     return abs(x2-x1)+abs(y2-y1)
 
 
-def reconstruct_path(came_from, current, draw):
+def reconstruct_path(came_from, current, draw):  # make the path from the end spot to the start spot
     while current in came_from:
         current = came_from[current]
         current.make_path()
@@ -132,7 +132,7 @@ def algorithm(draw, grid, start, end):
 
     open_set_hash = {start}
 
-    while not open_set.empty():
+    while not open_set.empty():    # perform the A* algorithm
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -140,13 +140,13 @@ def algorithm(draw, grid, start, end):
         current = open_set.get()[2]
         open_set_hash.remove(current)
 
-        if current == end:
+        if current == end:    # check if the spot has reached the end and recreate the path to start spot
             reconstruct_path(came_from, end, draw)
             end.make_end()
             success_box()
             return True
 
-        for neighbor in current.neighbors:
+        for neighbor in current.neighbors:     # update the heuristic for each spot and move closer to the end goal
             temp_g_score = g_score[current] + 1
 
             if temp_g_score < g_score[neighbor]:
@@ -166,8 +166,8 @@ def algorithm(draw, grid, start, end):
     error_msgbox()
     return False
 
-
-def make_grid(rows, width):
+ 
+def make_grid(rows, width):     # make grid 
     grid = []
     gap = width//rows
     for i in range(rows):
@@ -178,7 +178,7 @@ def make_grid(rows, width):
     return grid
 
 
-def draw_grid(win, rows, width):
+def draw_grid(win, rows, width):   # draw grid lines on the GUI window
     gap = width//rows
     for i in range(rows+1):
         pygame.draw.line(win, GREY, (0, i*gap), (width, i*gap))
@@ -186,7 +186,7 @@ def draw_grid(win, rows, width):
         pygame.draw.line(win, GREY, (j*gap+1, 0), (j*gap+1, width))
 
 
-def draw(win, grid, rows, width):
+def draw(win, grid, rows, width):   # make each spot white
     win.fill(WHITE)
     for row in grid:
         for spot in row:
@@ -196,7 +196,7 @@ def draw(win, grid, rows, width):
     pygame.display.update()
 
 
-def get_clicked_pos(pos, rows, width):
+def get_clicked_pos(pos, rows, width):   # get the position of the clicked points (start, goal and obstacle)
     gap = width//rows
     y, x = pos
     row = y//gap
@@ -216,20 +216,20 @@ def main(win, width):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            if pygame.mouse.get_pressed()[0]:
+            if pygame.mouse.get_pressed()[0]:    
                 pos = pygame.mouse.get_pos()
                 row, col = get_clicked_pos(pos, ROWS, width)
                 spot = grid[row][col]
-                if not start and spot != end:
+                if not start and spot != end:   # create the starting point
                     start = spot
                     spot.make_start()
-                elif not end and spot != start:
+                elif not end and spot != start: # create the end point
                     end = spot
                     spot.make_end()
-                elif spot != start and spot != end:
+                elif spot != start and spot != end:     #draw the obstacle
                     spot.make_obstacle()
 
-            elif pygame.mouse.get_pressed()[2]:
+            elif pygame.mouse.get_pressed()[2]:   # reset the clicked point to WHITE on right click
                 pos = pygame.mouse.get_pos()
                 row, col = get_clicked_pos(pos, ROWS, width)
                 spot = grid[row][col]
@@ -238,7 +238,7 @@ def main(win, width):
                     start = None
                 elif spot == end:
                     end = None
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:    # start the algorithm on pressing the SPACE key
                 if event.key == pygame.K_SPACE and start and end:
                     for row in grid:
                         for spot in row:
